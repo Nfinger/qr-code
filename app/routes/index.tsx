@@ -1,9 +1,4 @@
-import { Link } from "@remix-run/react";
-
-import { useOptionalUser } from "~/utils";
-
 export default function Index() {
-  const user = useOptionalUser();
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
@@ -30,6 +25,8 @@ export default function Index() {
           <span className="text-center">You were part of a social experiment proving that people will scan any QR code if given the chance.</span>
           <br />
           <span className="text-center">Please stop, thats dumb, dont be dumb. Cause being dumb is stupid.</span>
+          <br />
+          <span className="text-center">Anyone can create a QR code and put it anywhere you want</span>
         </div>
       </div>
     </main>
