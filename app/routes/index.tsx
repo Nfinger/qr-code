@@ -18,15 +18,15 @@ export default function Index() {
         </div>
 
         <div className="mx-auto max-w-7xl py-2 px-4 sm:px-6 lg:px-8 flex flex-col align-center">
-          <span className="text-center">Im a bad person and Ive stolen all your data now</span>
+          <span className="text-center">I'm a bad person and I've stolen all your data now.</span>
           <br />
-          <span className="italic text-center">JUST KIDDING</span>
+          <span className="italic text-center">JUST KIDDING!</span>
           <br />
           <span className="text-center">You were part of a social experiment proving that people will scan any QR code if given the chance.</span>
           <br />
-          <span className="text-center">Please stop, thats dumb, dont be dumb. Cause being dumb is stupid.</span>
+          <span className="text-center">Please stop, thats dumb, don't be dumb. Cause being dumb is stupid.</span>
           <br />
-          <span className="text-center">Anyone can create a QR code and put it anywhere you want</span>
+          <span className="text-center">Anyone can create a QR code and put it anywhere you want.</span>
         </div>
       </div>
     </main>
