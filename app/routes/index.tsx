@@ -1,19 +1,40 @@
+import type { LoaderFunction } from '@remix-run/node';
+import type { GifsResult } from '@giphy/js-fetch-api';
+import { GiphyFetch } from '@giphy/js-fetch-api';
+import { json } from "@remix-run/node";
+import { useLoaderData } from '@remix-run/react';
+import invariant from 'tiny-invariant';
+
+const SEARCH_TERM = 'gotcha';
+
+
+type LoaderData = {
+  gifs: GifsResult;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  invariant(process.env.GIPHY_API_KEY, 'GIPHY_API_KEY is required');
+
+  const gf = new GiphyFetch(process.env.GIPHY_API_KEY);
+  const gifs = await gf.search(SEARCH_TERM, { rating: 'g', limit: 20 });
+
+  return json<LoaderData>({ gifs });
+};
+
 export default function Index() {
+  const { gifs } = useLoaderData() as LoaderData;
+  const randomInt = Math.floor(Math.random() * gifs.data.length);
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 h-96">
-          <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl  h-96">
-            <div className="absolute inset-0 h-full">
-              <img
-                className="h-full w-full object-cover"
-                src="/assets/gotcha.gif"
-                alt="Sonic Youth On Stage"
-              />
-              <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
-            </div>
-            <div className="lg:pb-18 relative px-4 pt-16 pb-8 sm:px-6 sm:pt-24 sm:pb-14 lg:px-8 lg:pt-32">
-            </div>
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
+            <img
+              className="h-full w-full object-cover"
+              src={gifs.data[randomInt].images.original.url}
+              alt="Sonic Youth On Stage"
+            />
+            <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
           </div>
         </div>
 
