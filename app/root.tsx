@@ -11,10 +11,15 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "@remix-run/react";
+import { useEffect } from "react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./session.server";
+
+
+import * as gtag from "~/utils/gtags.client";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -51,6 +56,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    gtag.pageview(location.pathname);
+  }, [location]);
   return (
     <html lang="en" className="h-full">
       <head>
@@ -59,8 +69,29 @@ export default function App() {
 
       </head>
       <body className="h-full">
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TNKDZ65"
-          height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
+        {process.env.NODE_ENV === "development" ? null : (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+            />
+            <script
+              async
+              id="gtag-init"
+              dangerouslySetInnerHTML={{
+                __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+
+                gtag('config', '${gtag.GA_TRACKING_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `,
+              }}
+            />
+          </>
+        )}
         <Outlet />
         <ScrollRestoration />
         <Scripts />
