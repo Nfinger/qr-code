@@ -19,7 +19,7 @@ async function createAndLogin(email: string) {
     throw new Error("All test emails must end in @example.com");
   }
 
-  const user = await createUser(email, "myreallystrongpassword");
+  const user = await createUser('123', "test");
 
   const response = await createUserSessionOld({
     request: new Request(""),
