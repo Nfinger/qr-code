@@ -11,15 +11,10 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLocation,
 } from "@remix-run/react";
-import { useEffect } from "react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-import { getUser } from "./session.server";
-
-
-import * as gtag from "~/utils/gtags.client";
+import { createUserSession, getSession, getUser } from "./session.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -31,36 +26,29 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export const scripts = () => {
-  function tagManager(w: any, d: any, s: any, l: any, i: any) {
-    w[l] = w[l] || []; w[l].push({
-      'gtm.start':
-        new Date().getTime(), event: 'gtm.js'
-    });
-    var f = d.getElementsByTagName(s)[0],
-      j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-        'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-  }
-  return tagManager(window, document, 'script', 'dataLayer', 'GTM-TNKDZ65');
-}
-
 type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>;
 };
 
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return json<LoaderData>({
-    user: await getUser(request),
-  });
+  const url = new URL(request.url);
+  const location = url.searchParams.get("location");
+  const session = await getSession(request);
+
+  if (session.has("userId")) {
+    // Redirect to the home page if they are already signed in.
+    return json<LoaderData>({
+      user: await getUser(request),
+    });
+  }
+
+  const { user, headers } = await createUserSession(request, location ?? "")
+
+  return json<LoaderData>({ user }, { headers });
 };
 
 export default function App() {
-  const location = useLocation();
-
-  useEffect(() => {
-    gtag.pageview(location.pathname);
-  }, [location]);
   return (
     <html lang="en" className="h-full">
       <head>
@@ -69,29 +57,6 @@ export default function App() {
 
       </head>
       <body className="h-full">
-        {process.env.NODE_ENV === "development" ? null : (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
-            />
-            <script
-              async
-              id="gtag-init"
-              dangerouslySetInnerHTML={{
-                __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-
-                gtag('config', '${gtag.GA_TRACKING_ID}', {
-                  page_path: window.location.pathname,
-                });
-              `,
-              }}
-            />
-          </>
-        )}
         <Outlet />
         <ScrollRestoration />
         <Scripts />
